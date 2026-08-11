@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "competition_source": {
+    "description": "The competition page links the LRAT dataset and repository as its official training sources.",
+    "dataset_url": "https://huggingface.co/datasets/Yuqi-Zhou/LRAT-Train",
+    "code_url": "https://github.com/Yuqi-Zhou/LRAT"
+  },
+  "training_pairs": {
+    "repo_id": "Yuqi-Zhou/LRAT-Train",
+    "revision": "238b874226706bdf36e1684433b1455318ada22d",
+    "path": "LRAT-training-pairs.jsonl",
+    "bytes": 3883089616,
+    "sha256": "dd75a3f1970438f0905a3e3e93e3d98dc1122cdb0e054ba87159a9368afbe1b9",
+    "rows": 96504
+  },
+  "trajectories": {
+    "repo_id": "Yuqi-Zhou/LRAT-Train",
+    "revision": "238b874226706bdf36e1684433b1455318ada22d",
+    "path": "trajectories.tar.gz",
+    "bytes": 404317768,
+    "sha256": "fb8ca29a7807e334fa0eab2d22fd3c3d52852c2f42f534969c4b1605578617a9",
+    "files": 26482
+  },
+  "offline_corpus": {
+    "description": "Exact Wiki-25-Dump linked by the LRAT paper cited on the competition page.",
+    "competition_basis": "The competition states that its allowed offline corpus is the corpus provided by the LRAT paper; this pinned repository is that paper-linked corpus.",
+    "submission_use": "Raw-source traceability validation only; no corpus row is added to or mined for the M10 training pairs.",
+    "repo_id": "Lk123/wiki-25-512",
+    "revision": "fc1e312568b14385c04f41bc09157d8fa4c20658",
+    "path": "wiki-25-512.jsonl",
+    "bytes": 18496937987,
+    "sha256": "4d795938bb89cbd7e7467a8da4e772f7ae95e6b533181aeace2a5e3fd3de6393",
+    "schema": ["id", "contents"],
+    "paper_url": "https://arxiv.org/abs/2604.04949"
+  },
+  "base_model": {
+    "repo_id": "Qwen/Qwen3-Embedding-0.6B",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "path": "model.safetensors",
+    "bytes": 1191586416,
+    "sha256": "0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd",
+    "tokenizer_json_sha256": "def76fb086971c7867b829c23a26261e38d9d74e02139253b38aeb9df8b4b50a",
+    "config_json_sha256": "b5bf1f51fc45be473a54718cef92448d90a1be001bf9b9a44b8c7f10a19feaa9"
+  },
+  "organizer_released_derived_pairs_used": true,
+  "external_training_data_added_by_submission": false,
+  "external_api_called_by_submission_code": false,
+  "other_pretrained_model_parameters_added_by_submission": false
+}

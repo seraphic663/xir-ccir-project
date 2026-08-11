@@ -1,0 +1,29 @@
+\begin{frame}{4.1 A 榜结果：整体方案与内部学习率对照}
+    \centering
+    {\scriptsize
+    \begin{tabular}{@{}p{6.00cm}rrrr@{}}
+        \toprule
+        配置 & Total $\uparrow$ & Recall $\uparrow$ & Success $\uparrow$ & Avg\_Steps $\downarrow$ \\
+        \midrule
+        Baseline Qwen3 Embedding & 28.5 & 28.5 & 10.6 & 17.8 \\
+        Baseline LRAT: 2 epochs, LR = 1e-6 & 34.0 & 36.1 & 15.5 & 16.8 \\
+        Query-disjoint: 1 epochs, LR = 1e-6 & 39.5 & 45.0 & 19.8 & 15.9 \\
+        \rowcolor{softBlue}\textbf{Query-disjoint: 1 epochs, LR = 2e-6} & \textbf{40.6} & \textbf{46.3} & \textbf{21.1} & \textbf{16.0} \\
+        \bottomrule
+    \end{tabular}
+    }
+
+    \footnotesize\textcolor{mutedGray}{\textbf{Total}：综合得分；\textbf{Recall}：检索器召回率；\textbf{Success}：端到端成功率；\textbf{Avg\_Steps}：平均执行轮次。}\\
+
+    \vspace{1mm}
+    \begin{columns}[T,onlytextwidth]
+        \column{0.48\textwidth}
+        \sectionhead{平台结果}
+        \small
+        Baseline Qwen3：28.5 $\rightarrow$ 40.6（$+12.1$）。\\
+        Baseline LRAT：34.0 $\rightarrow$ 40.6（$+6.6$）。
+        \column{0.48\textwidth}
+        \sectionhead{内部学习率调整}
+        \small 在同一 query-disjoint 设置下，将 LR 从 $10^{-6}$ 调至 $2\times10^{-6}$，Total 从 39.5 提升至 40.6。
+    \end{columns}
+\end{frame}

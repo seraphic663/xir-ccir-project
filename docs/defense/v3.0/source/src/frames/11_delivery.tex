@@ -1,0 +1,33 @@
+\begin{frame}{4.2 B 榜结果：复现验收与三种 Agent 的实测结果}
+    \centering
+    \begin{tikzpicture}[node distance=0.25cm and 0.42cm]
+        \node[flow,minimum width=2.70cm,font=\scriptsize] (ckpt) {final retriever};
+        \node[flowgreen,minimum width=2.70cm,font=\scriptsize] (freeze) [right=of ckpt] {冻结并记录模型身份};
+        \node[flow,minimum width=2.70cm,font=\scriptsize,align=center] (agent) [right=of freeze] {接入三个 Agent\\进行 B 榜实测};
+        \draw[arrow] (ckpt) -- (freeze);
+        \draw[arrow] (freeze) -- (agent);
+    \end{tikzpicture}
+
+    \begin{columns}[T,onlytextwidth]
+        \column{0.45\textwidth}
+        \sectionhead{复现验收}
+        \footnotesize
+        \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.98\linewidth}@{}}
+            \textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}固定模型、代码和关键配置的身份；\\[1.2mm]
+            \textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}用新 CPU 进程独立加载最终模型；\\[1.2mm]
+            \textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}回读 Hugging Face revision 并核对文件哈希；\\[1.2mm]
+            \textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}GitHub repository 与本地文件校验。
+        \end{tabular}
+        \column{0.45\textwidth}
+        \sectionhead{B 榜结果}
+        \footnotesize
+        \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.98\linewidth}@{}}
+            \textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}DeepSeek-V4-Flash-0731：Total 67.42；\\[1.2mm]
+            \textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}Qwen3.5-35B-A3B：Total 60.96；\\[1.2mm]
+            \textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}gpt-oss-120b：Total 40.16；\\[1.2mm]
+            \textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}平均 Total 56.18，最高与最低相差 27.26。
+        \end{tabular}
+        \vspace{1.5mm}
+        \smallnote{\parbox{0.98\linewidth}{注：未提供逐 Agent baseline，因此本页只报告三种 Agent 的绝对表现，不作相对提升判断。}}
+    \end{columns}
+\end{frame}

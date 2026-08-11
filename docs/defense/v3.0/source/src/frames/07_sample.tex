@@ -1,0 +1,59 @@
+\begin{frame}{3.3 训练候选组装：1 个正例 + 5 个随机负例}
+    \centering
+    \keynote{每行的负例并非单个文档，而是一个候选池；为统一每次训练的候选规模，我们采用以下三步组装流程：}
+
+    \begin{tikzpicture}
+        \node[card,text width=3.65cm,minimum width=4.10cm,minimum height=3.15cm,
+            align=center] (stageone) at (-4.60cm,-0.15) {
+            \begin{minipage}[t][2.75cm][t]{3.65cm}
+                \centering
+                {\textcolor{accentRed}{\Large\bfseries 01}}\\[1mm]
+                {\textcolor{navyBlue}{\bfseries Training pair row}}\\[1.5mm]
+                \texttt{query / pos / neg}\\
+                保留 1 个正例\\
+                正例固定在候选位置 0
+            \end{minipage}
+        };
+        \node[flowgreen,text width=3.65cm,minimum width=4.10cm,minimum height=3.15cm,
+            align=center] (stagetwo) at (0cm,-0.15) {
+            \begin{minipage}[t][2.75cm][t]{3.65cm}
+                \centering
+                {\textcolor{accentRed}{\Large\bfseries 02}}\\[1mm]
+                {\textcolor{navyBlue}{\bfseries negative sampling}}\\[1.5mm]
+                从该行 \texttt{neg} 列表\\
+                随机抽取 5 个负例\\
+                组成候选组
+            \end{minipage}
+        };
+        \node[card,text width=3.65cm,minimum width=4.10cm,minimum height=3.15cm,
+            align=center] (stagethree) at (4.60cm,-0.15) {
+            \begin{minipage}[t][2.75cm][t]{3.65cm}
+                \centering
+                {\textcolor{accentRed}{\Large\bfseries 03}}\\[1mm]
+                {\textcolor{navyBlue}{\bfseries token budget}}\\[1.5mm]
+                \texttt{query} $\leq$ 128\\\texttt{passage} $\leq$ 512\\固定输入长度上限
+            \end{minipage}
+        };
+        \draw[arrow] (stageone.east) -- (stagetwo.west);
+        \draw[arrow] (stagetwo.east) -- (stagethree.west);
+    \end{tikzpicture}
+
+    \begin{tikzpicture}
+        \node[font=\normalsize,text=navyBlue,anchor=east] at (-5.30,-0.15) {输出：6-way 候选组};
+        \node[font=\Large] (q) at (-4.55,-0.15) {$q$};
+        \node[tensor,minimum width=0.76cm,minimum height=0.62cm,font=\small] (p0) at (-3.55,-0.15) {$d^+$};
+        \node[tensor,minimum width=0.76cm,minimum height=0.62cm,font=\small] (p1) at (-2.70,-0.15) {$d^-_1$};
+        \node[tensor,minimum width=0.76cm,minimum height=0.62cm,font=\small] (p2) at (-1.85,-0.15) {$d^-_2$};
+        \node[tensor,minimum width=0.76cm,minimum height=0.62cm,font=\small] (p3) at (-1.00,-0.15) {$d^-_3$};
+        \node[tensor,minimum width=0.76cm,minimum height=0.62cm,font=\small] (p4) at (-0.15,-0.15) {$d^-_4$};
+        \node[tensor,minimum width=0.76cm,minimum height=0.62cm,font=\small] (p5) at (0.70,-0.15) {$d^-_5$};
+        \draw[arrow] (q.east) -- (p0.west);
+        \foreach \x/\idx in {-3.55/0,-2.70/1,-1.85/2,-1.00/3,-0.15/4,0.70/5} {
+            \node[font=\scriptsize] at (\x,-0.92) {\idx};
+        }
+        \node[font=\scriptsize,anchor=east] at (-4.05,-0.92) {候选位置};
+        \node[font=\scriptsize,text=mutedGray,anchor=west,text width=7.20cm,align=left] at (-3.55,-1.52)
+            {同一 normalized query 的 rows 不合并；\\ 每条 row 独立组装为一个 candidate group。};
+    \end{tikzpicture}
+
+\end{frame}

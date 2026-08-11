@@ -1,0 +1,34 @@
+\begin{frame}{3.4 加权对比训练：使用 \texttt{reweight\_rate} 调整样本贡献}
+    \centering
+    \begin{tikzpicture}[node distance=0.28cm and 0.30cm]
+        \node[flowgreen,minimum width=2.50cm,minimum height=0.88cm,font=\scriptsize] (enc) {encode $(q,d)$};
+        \node[flow,minimum width=2.50cm,font=\scriptsize] (score) [right=of enc] {similarity score};
+        \node[flow,minimum width=2.50cm,font=\scriptsize] (loss) [right=of score] {weighted CE};
+        \node[flowgreen,minimum width=2.50cm,font=\scriptsize] (update) [right=of loss] {optimizer update};
+        \draw[arrow] (enc) -- (score);
+        \draw[arrow] (score) -- (loss);
+        \draw[arrow] (loss) -- (update);
+    \end{tikzpicture}
+
+    \begin{center}
+        \keynote{两张 A40 各处理 1 个 candidate group，gather 后另一 query 的候选文档作为 in-batch negatives\\我们先计算每个 query 的对比交叉熵，随后按对应 Training pair 的 \texttt{reweight\_rate} 加权。}
+    \end{center}
+    \begin{columns}[T,onlytextwidth]
+        \column{0.46\textwidth}
+        \sectionhead{目标函数}
+        \colorbox{softBlue}{\parbox{0.94\linewidth}{\centering
+            $\displaystyle s(q,d)=\frac{q^{\top}d}{\tau},\quad \tau=0.02$\\[0.5mm]
+            $\displaystyle \mathcal{L}=\frac{\sum_j w_j\ell_j}{\sum_j w_j}$\\
+            {\footnotesize\textcolor{mutedGray}{$\ell_j$：query $j$ 对比交叉熵；\\ $w_j$：Training pair 的 \texttt{reweight\_rate}。}\\
+            \textcolor{mutedGray}{权重在每个 2-query micro-batch 内归一化。}}}}
+        \column{0.46\textwidth}
+        \sectionhead{批次组织}
+        \footnotesize
+        \begin{tabular}{@{}ll@{}}
+            硬件 & 2 $\times$ A40\\
+            micro-batch & 2 groups\\
+            梯度累积 & 4 micro-steps\\
+            optimizer update & per 8 candidate groups\\
+        \end{tabular}
+    \end{columns}
+\end{frame}

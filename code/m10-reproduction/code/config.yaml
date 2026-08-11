@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "model_id": "M10",
+  "method": "query-disjoint subset of official LRAT pairs, weighted cross-device contrastive learning, one epoch from M00, learning rate 2e-6",
+  "base_model": {
+    "name": "Qwen3-Embedding-0.6B",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "model_safetensors_sha256": "0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd",
+    "tokenizer_json_sha256": "def76fb086971c7867b829c23a26261e38d9d74e02139253b38aeb9df8b4b50a"
+  },
+  "training_data": {
+    "name": "early_stop_v1/train.jsonl",
+    "rows": 94113,
+    "bytes": 3784989300,
+    "sha256": "158eb3843e8e022b5b0d7e64446ddf0782e2ad1aaa830f9f5aa3fb3b06c835c9",
+    "source_rows": 96504,
+    "source_sha256": "dd75a3f1970438f0905a3e3e93e3d98dc1122cdb0e054ba87159a9368afbe1b9",
+    "trajectory_archive_sha256": "fb8ca29a7807e334fa0eab2d22fd3c3d52852c2f42f534969c4b1605578617a9",
+    "offline_corpus_sha256": "4d795938bb89cbd7e7467a8da4e772f7ae95e6b533181aeace2a5e3fd3de6393",
+    "offline_corpus_bytes": 18496937987,
+    "full_traceability_required": true,
+    "training_fields": ["query", "pos", "neg", "reweight_rate"],
+    "unused_metadata_fields": ["pos_id", "neg_id", "reasoning_len", "satisfied"]
+  },
+  "training": {
+    "nproc_per_node": 2,
+    "master_port": 29531,
+    "omp_num_threads": 4,
+    "train_group_size": 6,
+    "query_max_len": 128,
+    "passage_max_len": 512,
+    "pad_to_multiple_of": 8,
+    "learning_rate": 2e-6,
+    "num_train_epochs": 1,
+    "max_steps": 11764,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 4,
+    "warmup_ratio": 0.1,
+    "logging_steps": 1,
+    "save_steps": 2000,
+    "save_total_limit": 3,
+    "temperature": 0.02,
+    "sentence_pooling_method": "last_token",
+    "normalize_embeddings": true,
+    "negatives_cross_device": true,
+    "knowledge_distillation": false,
+    "gradient_checkpointing": true,
+    "bf16": true,
+    "seed": 20260716,
+    "data_seed": 20260716
+  },
+  "inference": {
+    "query_instruction": "Given a web search query, retrieve relevant passages that answer the query",
+    "query_instruction_format": "Instruct: {}\nQuery:{}",
+    "query_max_len": 128,
+    "passage_max_len": 512,
+    "pooling": "last_token",
+    "normalize": true,
+    "embedding_dimension": 1024
+  },
+  "competition_inference": {
+    "description": "Contract used by the published A-leaderboard FAISS/Tevatron pipeline",
+    "query_prefix": "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery:",
+    "query_max_len": 8192,
+    "passage_max_len": 4096,
+    "pooling": "eos",
+    "normalize": true,
+    "embedding_dimension": 1024
+  },
+  "expected_checkpoint": {
+    "submitted_model_safetensors_sha256": "cea87cca521abd46c3e45ae53cd3b8f65b8216348c373fcc9698d69f133a9984",
+    "retraining_acceptance": "dev1500 metrics within absolute tolerance 0.002; byte-identical retraining is not required"
+  }
+}

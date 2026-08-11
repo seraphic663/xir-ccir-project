@@ -1,0 +1,29 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+
+# Competition data, derived datasets, caches, outputs, and model weights.
+data/
+work/
+cache/
+outputs/
+checkpoint/
+checkpoints/
+*.jsonl
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.zip
+*.tar
+*.tar.gz
+
+# Local credentials and environment files.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+token*

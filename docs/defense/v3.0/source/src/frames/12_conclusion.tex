@@ -1,0 +1,32 @@
+\newcommand{\factcard}[5]{%
+    \node[#1,text width=4.25cm,minimum height=3.40cm,align=left] at (#2,0) {%
+        \begin{minipage}[t][4.00cm][t]{3.82cm}
+            \centering
+            {\textcolor{accentRed}{\Large\bfseries #3}}\\[1.5mm]
+            {\textcolor{navyBlue}{\bfseries #4}}\\[2mm]
+            #5
+        \end{minipage}%
+    };
+}
+
+\begin{frame}{5. 总结：我们做了什么，结果说明什么}
+    \centering
+    \begin{tikzpicture}
+        \factcard{card}{-5.00cm}{01}{数据链路}{%
+            \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.82cm}@{}}
+                \scriptsize\textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}从 Training pairs 追溯核验到 trajectory / Corpus\\[0.6mm]
+                \scriptsize\textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}normalized query 按 group 完成整组隔离
+            \end{tabular}}
+        \factcard{card}{0cm}{02}{结果}{%
+            \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.82cm}@{}}
+                \scriptsize\textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}A 榜最终 Total 为 40.6\\[0.6mm]
+                \scriptsize\textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}相比 Baseline LRAT 34.0，提高 6.6\\[0.6mm]
+                \scriptsize\textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}B 榜三 Agent 平均：56.18
+            \end{tabular}}
+        \factcard{accentcard}{5.00cm}{03}{关键发现}{%
+            \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.82cm}@{}}
+                \scriptsize\textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}同一 query-disjoint 设置调整 LR：39.5 $\rightarrow$ 40.6\\[0.6mm]
+                \scriptsize\textcolor{accentRed}{\tiny$\bullet$}\hspace{0.4em}三个 Agent Total 相差 27.26，同一 retriever 的绝对表现对具体 Agent 仍然敏感
+            \end{tabular}}
+    \end{tikzpicture}
+\end{frame}

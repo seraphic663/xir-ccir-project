@@ -1,0 +1,38 @@
+\begin{frame}{3.5 训练配置选择：先确定训练轮数，再选择学习率}
+    \begin{columns}[T,onlytextwidth]
+        \column{0.47\textwidth}
+        \sectionhead{训练轮数}
+        {\centering\small 我们固定 LR=$10^{-6}$，使用完整 96,504 条 \\ Training pairs，分别训练 1、2、3 epoch \\ 并提交模型至 A 榜，结果如下：\par}
+        {\centering\scriptsize
+        \begin{tabular}{lrrrr}
+            \toprule
+                epoch & Total & Recall & Success & Avg\_Steps \\
+                \midrule
+                \rowcolor{softBlue}\textbf{1} & \textbf{40.1} & 44.8 & 21.0 & 15.4 \\
+                2 & 38.2 & 42.7 & 18.3 & 15.5 \\
+                3 & 38.7 & 43.4 & 19.0 & 15.8 \\
+            \bottomrule
+        \end{tabular}
+        \par}
+        \smallnote{完整 pairs 上的实验确定使用 1 epoch；随后在 query-disjoint 训练阶段选择学习率。}
+
+        \column{0.43\textwidth}
+        \sectionhead{学习率（LR）}
+        {\centering\small 固定 query-disjoint train（94,113 rows），\\ 四个 LR 各训练 500 个 optimizer steps，\\ 随后在 dev1500 上比较 R@1 与 MRR：\par}
+        {\centering\scriptsize
+        \begin{tabular}{lrr}
+            \toprule
+            学习率 & R@1 & MRR \\
+            \midrule
+            $3\times10^{-7}$ & 0.4913 & 0.6419 \\
+            $5\times10^{-7}$ & 0.5073 & 0.6571 \\
+            $1\times10^{-6}$ & 0.5433 & 0.6831 \\
+            \rowcolor{softBlue}\textbf{$2\times10^{-6}$} & \textbf{0.5640} & \textbf{0.6993} \\
+            \bottomrule
+        \end{tabular}\par}
+        \smallnote{R@1 和 MRR 同时在 LR=$2\times10^{-6}$ 时最高，因此选择该学习率。}\par
+    \end{columns}
+    \begin{center}
+        \keynote{最终采用：1 epoch + LR=$2\times10^{-6}$。}
+    \end{center}
+\end{frame}

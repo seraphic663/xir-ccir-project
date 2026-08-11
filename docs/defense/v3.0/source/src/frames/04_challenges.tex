@@ -1,0 +1,47 @@
+\begin{frame}{2. 从 LRAT 论文到本次训练：三个具体问题}
+    \begin{center}
+        \keynote{赛题提供 Training pairs、Agent trajectories 和 Corpus，并指定 Qwen3-Embedding-0.6B 作为基础模型。\\ 在不重新生成 trajectory 的前提下，如何可靠地利用已有 Training pairs 完成训练？}
+    \end{center}
+
+    \begin{center}
+        \begin{tikzpicture}[node distance=0.14cm and 0.14cm]
+            \node[card,text width=4.46cm,align=left] (signal) {
+                \begin{minipage}[t][2.00cm][t]{4.46cm}
+                    \centering\textcolor{accentRed}{\Large\bfseries 01}\\[-0.5mm]
+                    \textcolor{navyBlue}{\bfseries 每条 pair 能否回到轨迹？}\\[1.0mm]
+                    \scriptsize
+                    核对 query、正例、负例和样本权重与 Search / Browse / reasoning 的映射，并确认文档均在 Corpus 中。
+                \end{minipage}};
+            \node[card,text width=4.46cm,align=left] (leak) [right=of signal] {
+                \begin{minipage}[t][2.00cm][t]{4.46cm}
+                    \centering\textcolor{accentRed}{\Large\bfseries 02}\\[-0.5mm]
+                    \textcolor{navyBlue}{\bfseries 相同 query 如何避免跨集合？}\\[1.0mm]
+                    \scriptsize
+                    同一 normalized query 可能对应多条 source rows，随机切分会让相同 query 同时出现在 train 和 dev。
+                \end{minipage}};
+            \node[accentcard,text width=4.46cm,align=left] (cost) [right=of leak] {
+                \begin{minipage}[t][2.00cm][t]{4.46cm}
+                    \centering\textcolor{accentRed}{\Large\bfseries 03}\\[-0.5mm]
+                    \textcolor{navyBlue}{\bfseries 训练轮数和学习率怎样选择？}\\[1.0mm]
+                    \scriptsize
+                    完整训练成本较高，因此先固定样本组装和损失，再分别用 A 榜和 dev1500 选择 epoch 与 LR。
+                \end{minipage}};
+        \end{tikzpicture}
+    \end{center}
+
+    \vspace{-3mm}
+    \begin{center}
+        \textcolor{navyBlue}{\bfseries 针对这三个问题，我们最终采用四个步骤：}
+    \end{center}
+    \begin{center}
+        \begin{tikzpicture}[node distance=0.30cm and 0.30cm]
+            \node[flowgreen,minimum width=2.50cm,minimum height=1.10cm,font=\scriptsize,align=center,inner sep=1.0pt] (a) {Training pair\\追溯核验};
+            \node[flow,minimum width=2.50cm,minimum height=1.10cm,font=\scriptsize,align=center,inner sep=1.0pt] (b) [right=of a] {Normalized query\\整组切分};
+            \node[flowgreen,minimum width=2.50cm,minimum height=1.10cm,font=\scriptsize,align=center,inner sep=1.0pt] (c) [right=of b] {固定候选\\加权训练};
+            \node[flow,minimum width=2.50cm,minimum height=1.10cm,font=\scriptsize,align=center,inner sep=1.0pt] (d) [right=of c] {受控实验\\确定 epoch 与 LR};
+            \draw[->,draw=mutedGray!95,line width=1.20pt,>=Latex] (a) -- (b);
+            \draw[->,draw=mutedGray!95,line width=1.20pt,>=Latex] (b) -- (c);
+            \draw[->,draw=mutedGray!95,line width=1.20pt,>=Latex] (c) -- (d);
+        \end{tikzpicture}
+    \end{center}
+\end{frame}

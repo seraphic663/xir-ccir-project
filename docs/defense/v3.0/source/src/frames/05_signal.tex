@@ -1,0 +1,51 @@
+\begin{frame}{3.1 LRAT 训练信号与来源核验}
+    \begin{center}
+        \keynote{LRAT 用 Browse 区分候选正负：已 Browse 文档作候选正例，未 Browse 候选入负例池。}
+    \end{center}
+
+    \centering
+    \begin{tikzpicture}[node distance=0.25cm and 0.62cm]
+        \node[font=\footnotesize\bfseries,text=navyBlue,anchor=center] at (0,1.15)
+            {LRAT 论文中的训练信号形成};
+
+        \node[flow,minimum width=2.30cm,minimum height=0.64cm,
+            text width=2.18cm,font=\scriptsize,align=center,inner sep=2pt] (search) at (-5.15,0.48)
+            {Search(query)\\[-0.2mm]top-K candidates};
+        \node[flowgreen,minimum width=2.10cm,minimum height=0.64cm,
+            text width=1.98cm,font=\scriptsize,align=center,inner sep=2pt] (browse) at (-1.98,0.48)
+            {Browse(doc)\\[-0.2mm]先作候选正例};
+        \node[flow,minimum width=3.05cm,minimum height=0.64cm,
+            text width=2.93cm,font=\scriptsize,align=center,inner sep=2pt] (reason) at (1.28,0.48)
+            {post-Browse reasoning\\[-0.2mm]再过滤无效信号};
+        \node[accentcard,minimum width=2.65cm,minimum height=0.62cm,
+            text width=2.53cm,font=\scriptsize,align=center,
+            inner xsep=2pt,inner ysep=1.5pt] (pair) at (4.965,0.48)
+            {Training pair\\[-0.2mm]query / pos / neg};
+
+        \draw[arrow] (search.east) -- (browse.west);
+        \draw[arrow] (browse.east) -- (reason.west);
+        \draw[arrow] (reason.east) -- (pair.west);
+
+        \node[flowgreen,minimum width=2.45cm,minimum height=0.62cm,
+            text width=2.55cm,font=\scriptsize,align=center] (audit_pair) at (-4.90,-1.10)
+            {Training pair};
+        \node[flow,minimum width=4.00cm,minimum height=0.62cm,
+            text width=3.90cm,font=\scriptsize,align=center] (events) at (-0.35,-1.10)
+            {Search / Browse / reasoning};
+        \node[accentcard,minimum width=3.20cm,minimum height=0.62cm,
+            text width=3.10cm,font=\scriptsize,align=center] (corpus) at (4.55,-1.10)
+            {Corpus document};
+
+        \draw[arrow] (audit_pair.east) -- node[above,font=\tiny,text=accentRed] {回溯映射} (events.west);
+        \draw[arrow] (events.east) -- (corpus.west);
+
+        \node[accentcard,minimum width=1.30cm,minimum height=0.98cm,
+            text width=1.10cm,font=\normalsize\bfseries,align=center] at (-5.25,-2.40)
+            {\textcolor{navyBlue}{核验\\结果}};
+        \node[thinbox,minimum width=10.30cm,minimum height=0.98cm,align=left] at (0.85,-2.40) {
+            \parbox{9.85cm}{\raggedright\scriptsize
+                \textcolor{navyBlue}{\bfseries 96,504 pairs}；96,366 条唯一映射；138 条多候选、字段一致；0 条无法匹配。\\[0.5mm]
+                \textcolor{navyBlue}{\bfseries 1,989,015 个文档引用}全部命中固定 LRAT Corpus；无缺失或文本不一致。}
+        };
+    \end{tikzpicture}
+\end{frame}

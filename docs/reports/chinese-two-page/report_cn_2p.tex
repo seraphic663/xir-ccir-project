@@ -1,0 +1,161 @@
+\documentclass[UTF8,a4paper,10pt]{ctexart}
+\usepackage[a4paper,left=15.5mm,right=15.5mm,top=11mm,bottom=11mm]{geometry}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,array,tabularx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\makeatletter
+\let\ps@headings\ps@plain
+\makeatother
+
+\definecolor{navy}{RGB}{28,60,100}
+\definecolor{lightgray}{RGB}{245,247,249}
+\definecolor{linegray}{RGB}{205,211,216}
+\definecolor{teal}{RGB}{31,120,110}
+\definecolor{orange}{RGB}{190,110,25}
+\hypersetup{colorlinks=true,linkcolor=navy,urlcolor=navy}
+\ctexset{section={format=\large\bfseries\color{navy},beforeskip=3pt,afterskip=1pt},subsection={format=\normalsize\bfseries\color{navy},beforeskip=2pt,afterskip=1pt}}
+\setlist{nosep,leftmargin=*}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{2pt}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\sloppy
+
+\tikzset{
+  pipe/.style={draw=navy!65,fill=navy!6,rounded corners=2pt,minimum width=2.35cm,minimum height=0.56cm,align=center,font=\footnotesize},
+  pipegreen/.style={draw=teal!85!black,fill=teal!8,rounded corners=2pt,minimum width=2.35cm,minimum height=0.56cm,align=center,font=\footnotesize},
+  pipeorange/.style={draw=orange!85!black,fill=orange!8,rounded corners=2pt,minimum width=2.35cm,minimum height=0.56cm,align=center,font=\footnotesize},
+  pipearrow/.style={-{Latex[length=2mm]},draw=gray!75,line width=0.7pt}
+}
+
+\title{\bfseries 基于 Agent 轨迹的检索器训练\\[-1mm]\large 决赛答辩方案介绍 · v3.0}
+\author{DefaultGroup（中国人民大学 CCIR 参赛队）\\中国人民大学高瓴人工智能学院}
+\date{}
+
+\begin{document}
+\pagestyle{plain}
+\maketitle
+\vspace{-7pt}
+\noindent\small
+\textbf{队伍信息：}Team ID：362259；Record ID：998912；成员：刘琦（队长）、赵梓名（队员）；主要联系人：刘琦（13798122637）。\par
+\vspace{-2pt}
+
+\section*{摘要}
+在 Agentic Search 中，Agent 会为多步 reasoning 生成中间 query，先查看 snippet，再决定是否 Browse 全文；检索结果随后进入下一轮 reasoning。LRAT 论文指出，Search→Browse、同轮未 Browse 候选和 post-Browse reasoning 可以提供与文档效用相关的监督。本项目不重新生成 Agent trajectory、不重新调用论文 judge，也不引入外部数据、教师模型、LoRA 或 Adapter，而是围绕官方 Training pairs、Agent trajectories、离线 Corpus 和指定的 Qwen3-Embedding-0.6B，建立来源可追溯、query 不泄漏、训练可执行、结果可验收的链路。最终 A 榜取得 Total 40.6、Recall 46.3、Success 21.1、Avg\_Steps 16.0；B 榜三个 Agent 的平均 Total 为 56.18。
+
+\section{研究背景与总体链路}
+深度研究 Agent 会反复 Think、Search、Browse 和 Reason：Search 返回候选摘要，Browse 决定读取哪篇全文，全文内容再影响后续 query 和答案。因此 retriever 的目标不只是主题相关，而是返回能够推进当前局部推理的证据。我们的落地链路是：固定输入 → 轨迹/Training pair 来源核验 → normalized query 整组切分 → 1 个正例 + 5 个负例 → 加权对比训练 → A/B 榜评测 → 独立加载、冻结与复现验收。
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.18cm]
+  \node[pipe] (a) {固定输入};
+  \node[pipegreen,right=of a] (b) {来源核验};
+  \node[pipeorange,right=of b] (c) {query\mbox{-}disjoint};
+  \node[pipegreen,right=of c] (d) {1+5 加权训练};
+  \node[pipe,right=of d] (e) {A/B 与交付};
+  \draw[pipearrow] (a) -- (b); \draw[pipearrow] (b) -- (c); \draw[pipearrow] (c) -- (d); \draw[pipearrow] (d) -- (e);
+\end{tikzpicture}
+\end{center}
+
+论文中的 Browse 文档先作为候选正例，同一 Search 候选集合中未 Browse 的文档进入负例池，post-Browse reasoning 用于过滤无效浏览并提供效用强度信号；这些机制解释了为什么 Agent 轨迹适合作为面向 Agent 的训练监督。\textsuperscript{[1]} 本项目实际使用组委会发布的 Training pairs：trajectory 和 Corpus 用于来源与文档一致性核验，不在本次工作中重新采集 trajectory、重算 label/weight 或完成论文式 Data Flywheel。
+
+\section{数据核验与 query-disjoint 切分}
+我们将 query、正例文档、负例文档和 \texttt{reweight\_rate} 回溯到轨迹事件，并检查文档是否存在于固定 Corpus。96,504 条 Training pairs 中，96,366 条可稳定映射，138 条为字段一致的多候选映射，0 条无法匹配；1,989,015 个文档引用、959,042 个唯一文档 ID 均无缺失或文本不一致。
+
+对 query 执行去首尾空格、合并连续空白和 Unicode casefold；相同 normalized query 的所有 source rows 作为一个 group，整组分配到 train、dev 或 locked test。最终 train 为 78,890 groups / 94,113 rows，dev 为 1,500 groups，locked test 为 500 groups，集合间 overlap 为 0。dev 只用于开发与选择，locked test 不回流。
+
+\begin{center}
+\small
+\begin{tabular}{lrrl}
+\toprule
+集合 & query groups & source rows & 用途 \\
+\midrule
+train & 78,890 & 94,113 & 全参数训练 \\
+dev & 1,500 & -- & 开发与选择 \\
+locked test & 500 & -- & 不参与训练与选择 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{训练方法与配置}
+每条 Training pair row 构造成 1 个 query、1 个 positive 和从该行 \texttt{neg} 列表随机抽取的 5 个 negatives，组成六路候选组；正例固定在候选位置 0。query / passage 上限为 128 / 512 tokens。模型从指定的 Qwen3-Embedding-0.6B 开始全参数更新，使用共享 encoder、last-token pooling、L2 normalization 和 1024 维向量。相似度为 $s(q,d)=q^{\mathsf T}d/\tau$，其中 $\tau=0.02$；设 query 对比交叉熵为 $\ell_j$、官方 \texttt{reweight\_rate} 为 $w_j$，实现的加权目标为
+\[
+\mathcal{L}=\frac{\sum_j w_j\ell_j}{\sum_j w_j}.
+\]
+权重只改变 query 对 loss 的贡献，不改变正负标签。两张 A40 各处理 1 个 candidate group，cross-device gather 后另一 query 的候选文档作为 in-batch negatives；gradient accumulation=4 只改变 optimizer update 粒度，effective query batch 为 8，不合并四个 micro-step 的候选池。
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+训练行数 & 94,113 & GPU & 2$\times$A40 \\
+epoch / steps & 1 / 11,764 & batch / accumulation & 1 / 4 \\
+group / learning rate & 6 / $2\times10^{-6}$ & query / passage & 128 / 512 \\
+precision & bf16 & negatives & cross-device \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{配置选择、实验结果与边界}
+我们先在完整 96,504 条 Training pairs 上固定 LR=$1\times10^{-6}$，分别训练 1、2、3 epoch 并提交 A 榜；Total 分别为 40.1、38.2、38.7，因此选择 1 epoch。随后固定 query-disjoint train（94,113 rows），在 dev1500 上对四个学习率做 500-step 选择。
+
+\begin{center}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+epoch & Total & Recall & Success & Avg\_Steps \\
+\midrule
+1 & 40.1 & 44.8 & 21.0 & 15.4 \\
+2 & 38.2 & 42.7 & 18.3 & 15.5 \\
+3 & 38.7 & 43.4 & 19.0 & 15.8 \\
+\bottomrule
+\end{tabular}
+\quad
+\begin{tabular}{lrr}
+\toprule
+learning rate & R@1 & MRR \\
+\midrule
+$3\times10^{-7}$ & 0.4913 & 0.6419 \\
+$5\times10^{-7}$ & 0.5073 & 0.6571 \\
+$1\times10^{-6}$ & 0.5433 & 0.6831 \\
+\textbf{$2\times10^{-6}$} & \textbf{0.5640} & \textbf{0.6993} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\smallskip
+\noindent\footnotesize
+正式 A 榜对照为：
+\begin{center}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+候选 & Total $\uparrow$ & Recall $\uparrow$ & Success $\uparrow$ & Avg\_Steps $\downarrow$ \\
+\midrule
+Baseline Qwen3 Embedding & 28.5 & 28.5 & 10.6 & 17.8 \\
+赛事官方 LRAT baseline & 34.0 & 36.1 & 15.5 & 16.8 \\
+Query-disjoint ($1\times10^{-6}$) & 39.5 & 45.0 & 19.8 & 15.9 \\
+\textbf{最终候选 ($2\times10^{-6}$)} & \textbf{40.6} & \textbf{46.3} & \textbf{21.1} & 16.0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+最终候选相对两个外部/平台参照行分别提高 12.1 和 6.6 个 Total 点；在同一 query-disjoint 配方中，调整 LR 后由 39.5 提升至 40.6。以上是平台结果行之间的比较，不能归因给单一变量。
+
+B 榜在 DeepSeek-V4-Flash-0731、Qwen3.5-35B-A3B、gpt-oss-120b 三种 Agent 上的 Total 分别为 67.42、60.96、40.16，平均 56.18，最高与最低相差 27.26。它支持跨 Agent 的实测可运行性，但由于没有匹配的逐 Agent baseline，正文只报告绝对表现，不外推为对所有 Agent 的普遍提升。
+
+\section{交付与结论}
+最终模型完成独立 CPU 进程加载、query/document 推理 smoke、冻结 manifest、Hugging Face 公开 revision 回读以及 GitHub/复现包校验；具体哈希、commit 和逐文件证据保留在《复现验收附录》中。我们的核心贡献不是重新制造监督，而是把固定官方监督组织成一条可审计、可隔离、可训练、可复核的工程链路：来源核验回答“信号从哪里来”，query-disjoint 保护开发边界，固定候选与加权 loss 记录训练语义，分阶段实验确定 epoch 与 LR，A/B 榜给出正式效果及其跨 Agent 限定。
+
+\begin{center}
+\fcolorbox{navy}{lightgray}{\parbox{0.94\linewidth}{\centering\small
+方案效果由 A/B 榜验证；locked test 未回流；跨 Agent 分数差异和当前对照范围限制了因果归因与普遍泛化结论。}}
+\end{center}
+
+\section*{参考资料}
+\small
+[1] Yuqi Zhou et al., ``Learning to Retrieve from Agent Trajectories,'' arXiv:2604.04949, 2026；[2] \href{https://huggingface.co/spaces/Yuqi-Zhou/BC-Plus-Leaderboard}{BC-Plus A Leaderboard}；[3] \href{https://www.xir.cn/competition/1170}{CCIR Cup 2026 赛事说明页}。
+
+\end{document}

@@ -1,0 +1,43 @@
+\begin{frame}{3.2 训练数据切分：按 normalized query 整组隔离}
+    \centering
+    \keynote{一条 query 可能对应多条 Training pair；这些 rows 先按 normalized query 归并为 query group。}\\[1mm]
+    \begin{tikzpicture}
+        % 顶部主链：三节点横向展开
+        \node[flow,minimum width=1.90cm,minimum height=0.62cm,
+            font=\footnotesize] (raw) at (-6.10,0) {raw query};
+        \node[flowgreen,minimum width=2.55cm,minimum height=0.62cm,
+            font=\footnotesize] (norm) at (-0.60,0) {normalized query};
+        \node[flow,minimum width=2.25cm,minimum height=0.62cm,
+            font=\footnotesize] (group) at (3.65,0) {query group};
+
+        \draw[arrow] (raw.east) -- (norm.west);
+        \draw[arrow] (norm.east) -- (group.west);
+        \node[overlay,font=\scriptsize,text=mutedGray,text width=4.20cm,align=center] at (-3.35,-0.56)
+            {去首尾空白；合并连续空白\\[-0.1mm] Unicode case fold};
+        % Query group 向下进入 split；横向大括号统摄下方三个集合
+        \draw[arrow,line width=1.0pt] (group.south) -- (3.65,-1.00);
+        \draw[decorate,decoration={brace,amplitude=5pt},
+            draw=mutedGray!85,line width=0.9pt]
+            (0.45,-1.10) -- (6.85,-1.10);
+
+        \node[flowgreen,minimum width=1.90cm,minimum height=1.06cm,
+            text width=1.80cm,align=left,font=\scriptsize] (tr) at (1.45,-1.83)
+            {\textcolor{navyBlue}{\bfseries train}\\[0.7mm]
+            78,890 groups\\[0.7mm]
+            全参数训练};
+        \node[flow,minimum width=1.90cm,minimum height=1.06cm,
+            text width=1.80cm,align=left,font=\scriptsize] (dv) at (3.65,-1.83)
+            {\textcolor{navyBlue}{\bfseries dev}\\[0.7mm]
+            1,500 groups\\[0.7mm]
+            开发与选择};
+        \node[flow,minimum width=1.90cm,minimum height=1.06cm,
+            text width=1.80cm,align=left,font=\scriptsize] (te) at (5.85,-1.83)
+            {\textcolor{navyBlue}{\bfseries locked test}\\[0.7mm]
+            500 groups\\[0.7mm]
+            不参与训练与选择};
+
+        \node[font=\scriptsize,text=mutedGray,fill=paperWhite,inner sep=1pt,text width=6.00cm,align=center] at (3.65,-2.90) {三组间的 overlap = 0。};
+
+    \end{tikzpicture}\\[1.2mm]
+    \smallnote{query group 只用于数据切分；同一 normalized query 的 Training pair rows 必须进入同一个集合。\\ 它不等同于训练时的 candidate group。}
+\end{frame}

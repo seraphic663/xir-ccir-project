@@ -1,0 +1,108 @@
+\makeatletter
+\def\input@path{{../theme/}}
+\makeatother
+
+\usepackage{ctex,hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,booktabs,tabularx,graphicx,tikz,colortbl}
+\usepackage{RenminUniv}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,decorations.pathreplacing}
+
+% Keep the copied visual system readable without letting dense frames spill
+% into the footer.
+\linespread{1.0}
+
+\graphicspath{{../theme/pic/}{../assets/}}
+
+\definecolor{navyBlue}{HTML}{3A4046}
+\definecolor{navyDeep}{HTML}{2F3439}
+\definecolor{accentRed}{HTML}{9E2A2B}
+\definecolor{softBlue}{HTML}{F5F6F5}
+\definecolor{softGray}{HTML}{FAFAF9}
+\definecolor{deepGray}{HTML}{2F3439}
+\definecolor{mutedGray}{HTML}{6D747B}
+\definecolor{lineGray}{HTML}{D4D9DD}
+\definecolor{softRed}{HTML}{F9EEEE}
+\definecolor{paperWhite}{HTML}{FEFEFD}
+\definecolor{gateGreen}{HTML}{E6F4EA}
+\definecolor{gateGreenLine}{HTML}{2E7D5B}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{background}{%
+    \begin{tikzpicture}[remember picture,overlay]
+        \ifnum\insertframenumber=1
+            \node[anchor=south west,inner sep=0,opacity=0.40] at (current page.south west)
+                {\includegraphics[width=\paperwidth,height=\paperheight]{../theme/pic/background.pdf}};
+        \else
+            \node[anchor=south west,inner sep=0,opacity=0.13] at (current page.south west)
+                {\includegraphics[width=\paperwidth,height=\paperheight]{../theme/pic/background.pdf}};
+        \fi
+    \end{tikzpicture}%
+}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+\setbeamercolor{normal text}{fg=deepGray}
+\setbeamercolor{background canvas}{bg=paperWhite}
+\setbeamercolor{frametitle}{bg=paperWhite,fg=accentRed}
+\setbeamercolor{block title}{bg=navyBlue,fg=white}
+\setbeamercolor{block body}{bg=softBlue,fg=deepGray}
+\setbeamercolor{title}{bg=paperWhite,fg=accentRed}
+\setbeamercolor{titlelike}{bg=paperWhite,fg=accentRed}
+\setbeamercolor{author in head/foot}{bg=paperWhite,fg=mutedGray}
+\setbeamercolor{institute in head/foot}{bg=paperWhite,fg=mutedGray}
+\setbeamercolor{title in head/foot}{bg=paperWhite,fg=mutedGray}
+\setbeamercolor{frame number}{fg=accentRed}
+\setbeamercolor{upper separation line foot}{bg=accentRed}
+\setbeamercolor{lower separation line foot}{bg=lineGray}
+\setbeamercolor{palette primary}{bg=paperWhite,fg=accentRed}
+\setbeamercolor{palette secondary}{bg=softGray,fg=mutedGray}
+\setbeamercolor{palette tertiary}{bg=softGray,fg=mutedGray}
+\setbeamercolor{palette quaternary}{bg=softGray,fg=mutedGray}
+\setbeamercolor{structure}{fg=accentRed}
+\setbeamersize{text margin left=0.55cm,text margin right=0.55cm}
+\setlength{\tabcolsep}{0.13cm}
+\renewcommand{\arraystretch}{1.16}
+
+\newcommand{\key}[1]{\textcolor{accentRed}{\textbf{#1}}}
+\newcommand{\muted}[1]{\textcolor{mutedGray}{#1}}
+\newcommand{\smallnote}[1]{{\scriptsize\textcolor{mutedGray}{#1}}}
+\newcommand{\keynote}[1]{{\footnotesize\textcolor{navyBlue}{#1}}}
+\newcommand{\sectionhead}[1]{%
+    {\textcolor{navyBlue}{\bfseries\normalsize #1}}\\
+    {\textcolor{accentRed}{\rule{\linewidth}{0.65pt}}}\\
+}
+\newcommand{\cellhead}[1]{\textcolor{accentRed}{\bfseries\normalsize #1}}
+\newcommand{\code}[1]{\texttt{\small #1}}
+\newcommand{\takeaway}[1]{%
+    \fcolorbox{accentRed}{softRed}{\parbox{0.78\textwidth}{\centering\color{accentRed}\Large\bfseries #1}}}
+\newcommand{\compacttakeaway}[1]{%
+    \fcolorbox{accentRed}{softRed}{\parbox{0.78\textwidth}{\centering\color{accentRed}\normalsize\bfseries #1}}}
+\newcommand{\stagecard}[5]{%
+    \node[#1,text width=4.00cm,minimum width=4.50cm,minimum height=3.15cm,align=center] at (#2,-0.15) {%
+        \begin{minipage}[t][2.75cm][t]{4.00cm}
+            \centering
+            {\textcolor{accentRed}{\Large\bfseries #3}}\\[1mm]
+            {\textcolor{navyBlue}{\bfseries #4}}\\[1.5mm]
+            #5
+        \end{minipage}%
+    };
+}
+
+\tikzset{
+    card/.style={draw=lineGray,fill=paperWhite,rounded corners=4pt,
+        inner sep=6pt,align=center,font=\small},
+    accentcard/.style={draw=accentRed!70,fill=softRed,rounded corners=4pt,
+        inner sep=6pt,align=center,font=\small},
+    gatebox/.style={draw=gateGreenLine,fill=gateGreen,rounded corners=4pt,
+        inner sep=6pt,align=center,font=\small},
+    tensor/.style={draw=mutedGray!65,fill=white,rounded corners=2pt,
+        minimum width=1.0cm,minimum height=0.62cm,align=center,font=\scriptsize},
+    flow/.style={draw=lineGray,fill=paperWhite,rounded corners=3pt,
+        minimum width=2.45cm,minimum height=0.72cm,align=center,font=\small},
+    flowgreen/.style={draw=gateGreenLine!75,fill=gateGreen,rounded corners=3pt,
+        minimum width=2.45cm,minimum height=0.72cm,align=center,font=\small},
+    arrow/.style={->,draw=mutedGray!85,line width=0.85pt},
+    dottedarrow/.style={->,dashed,draw=accentRed,line width=0.7pt},
+    thinbox/.style={draw=lineGray,rounded corners=3pt,align=center,
+        inner sep=5pt,font=\small}
+}
